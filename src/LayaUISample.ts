@@ -3,6 +3,8 @@ import Label = Laya.Label;
 import Handler = Laya.Handler;
 import Loader = Laya.Loader;
 
+import Scene = game.Scene;
+
 class TestUI extends ui.test.TestPageUI {
 
 	constructor() {
@@ -65,6 +67,9 @@ function beginLoad(){
 
 function onLoaded(): void {
 	//实例UI界面
-	var testUI: TestUI = new TestUI();
-	Laya.stage.addChild(testUI);
+	// var testUI: TestUI = new TestUI();
+	// Laya.stage.addChild(testUI);
+	var scene:Scene = new Scene();
+	scene.init();
+
 }

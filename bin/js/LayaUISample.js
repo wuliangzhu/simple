@@ -12,6 +12,7 @@ var test = ui.test.TestPageUI;
 var Label = Laya.Label;
 var Handler = Laya.Handler;
 var Loader = Laya.Loader;
+var Scene = game.Scene;
 var TestUI = /** @class */ (function (_super) {
     __extends(TestUI, _super);
     function TestUI() {
@@ -68,7 +69,9 @@ function beginLoad() {
 }
 function onLoaded() {
     //实例UI界面
-    var testUI = new TestUI();
-    Laya.stage.addChild(testUI);
+    // var testUI: TestUI = new TestUI();
+    // Laya.stage.addChild(testUI);
+    var scene = new Scene();
+    scene.init();
 }
 //# sourceMappingURL=LayaUISample.js.map
