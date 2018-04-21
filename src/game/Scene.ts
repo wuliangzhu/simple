@@ -1,5 +1,7 @@
 /**
-* name 
+* 1 负责地图加载；
+* 2 负责接收用户输入
+* 3 监听到game_init 就进行地图加载，默认是 scene_default.json
 */
 module game{
 	import TiledMap = Laya.TiledMap;
@@ -11,34 +13,60 @@ module game{
 
 
 	export class Scene{
+		private static DEFAULT_SCENE:string = "res/first.json";
 		public map:TiledMap;
 		public layer:Layer;
+		public sceneName:string;
+		/**地图视角坐标 */
+		private viewX:number;
+		private viewY:number;
+		private width:number;
+		private height:number;
 
 		constructor(){
 
 		}
 
 		public init():void {
-			Laya.init(1100, 800, WebGL);
+			this.width = Laya.stage.width;
+			this.height = Laya.stage.height;
+			this.viewX = 0;
+			this.viewY = 0;
 
-			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
-			Laya.stage.alignH = Stage.ALIGN_CENTER;
+			EventBus.bus.on(Event.GAME_INIT, this, () => {
+				this.loadScene(Scene.DEFAULT_SCENE);
+			})
 
-			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-			Laya.stage.bgColor = "#2326ff";
-			this.map = new TiledMap();
-			this.map.createMap("res/first.json", new Rectangle(0, 0, Laya.stage.width, Laya.stage.height), 
-			new Laya.Handler(this, this.completeHandler, null, false));
+			EventBus.bus.on(Event.GAME_CHANGE_SCENE, this, file => {
+				this.loadScene(file);
+			})
 
-			Laya.stage.on(Laya.Event.CLICK, this, this.clickHandler);
-
+			EventBus.bus.on(Event.MOVE_VIEW_POINT, this, this.moveViewPoint);
 			console.log("init finished");
 		}
-		
-		public completeHandler():void {
-			console.log("load map completed!!")
+
+		private loadScene(sceneFile:string):void {
+			this.map = new TiledMap();
+			this.map.createMap(sceneFile, new Rectangle(0, 0, this.width, this.height), 
+						new Laya.Handler(this, this.completeHandler, [sceneFile], false));
+
+			Laya.stage.on(Laya.Event.CLICK, this, this.clickHandler);
+		}
+
+		private completeHandler(sceneFile:string):void {
+			console.log(`${sceneFile} load map completed!!`)
+			this.sceneName = sceneFile;
+
+			EventBus.bus.event(Event.GAME_ENTER_SCENE, this);
 
 			this.layer = this.map.getLayerByIndex(0);
+		}
+
+		private moveViewPoint(dx:number, dy:number):void {
+			this.viewX = this.viewX + dx;
+			this.viewY = this.viewY + dy;
+
+			this.map.changeViewPort(this.viewX, this.viewY, this.width, this.height)
 		}
 
 		private clickHandler = function(e){

@@ -1,0 +1,4 @@
+bin/js/*
+.laya/*
+bin/js/game/Scene.js
+.DS_Store
