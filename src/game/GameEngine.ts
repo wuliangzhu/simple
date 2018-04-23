@@ -23,6 +23,9 @@ module game{
 		}
 
 		public static init():void {
+			let app:Function = GameConfig.appClass;
+			app();
+
 			let engine:GameEngine = new GameEngine();
 			engine.initStage();
 
@@ -68,19 +71,21 @@ module game{
 				// TODO:
 			});
 
-			// init the frame loop
-			Laya.timer.frameLoop(10, this, this.frameUpdate);
+			// init the frame loop 多久更新一次滚动
+			Laya.timer.frameLoop(2, this, this.frameUpdate);
 		}
 
 		private frameUpdate():void{
 			// update logic
 
-			// scroll map
-			EventBus.bus.event(Event.MOVE_VIEW_POINT, [GameConfig.SCENE_SCROLL_SPEED, 0]);
+			// scroll map 应该属于 App范畴
+			// EventBus.bus.event(Event.MOVE_VIEW_POINT, [GameConfig.SCENE_SCROLL_SPEED, 0]);
 		}
 
 		/**
 		 * 启动一个背景线程进行代码处理
+		 * 需要进行后台处理的，可以放在workerjs中
+		 * 处理完毕会调用callback方法
 		 */
 		private initBackgroundWorker(callback:Function):void {
 			this.worker = new Laya.Browser.window.Worker("worker.js");
