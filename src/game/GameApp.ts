@@ -8,6 +8,7 @@ module game{
 	import GridSprite = Laya.GridSprite;
 	import MapLayer = Laya.MapLayer;
 	import Point = laya.maths.Point;
+	import Image = Laya.Image;
 
 	export class GameApp{
 		private inputHandlers:Map<Function> = new Map<Function>();
@@ -17,6 +18,9 @@ module game{
 		private right:GridSprite;
 		private scene:Scene;
 		private isSuccess:boolean;
+
+		// test the puzzle
+		private puzzleImage:Laya.Texture;
 
 		constructor(){
 			EventBus.bus.once(Event.GAME_INIT, this, this.init);
@@ -34,7 +38,9 @@ module game{
 
 		public init():void {
 			console.log("game app init");
-			
+			this.puzzleImage = new Laya.Texture();
+			this.puzzleImage.load("res/59fb23041c3ad.png");
+
 		}
 
 		private enterScene(scene:Scene):void {
@@ -61,13 +67,41 @@ module game{
 
 		private handleInput(key:string):void {
 			console.log("input the " + key)
+			// test the puzzle
+			
+			var currentStatus:PuzzleStatus = PuzzleStatus.statusWithMatrixOrder(3, this.puzzleImage);
+			console.log("current status:" + currentStatus.statusIdentifier());
+			currentStatus.emptyIndex = 5;
+			var completedStatus:PuzzleStatus = currentStatus.copy();
+			currentStatus.shuffleCount(20)
+			console.log("shuffle after status:" + currentStatus.statusIdentifier())
 
-			if (!this.isSuccess) {
-				this.handlePlayer(this.left, false);
-				this.handlePlayer(this.right, true);
+			this.testPuzzle(currentStatus, completedStatus);
+			
+			// if (!this.isSuccess) {
+			// 	this.handlePlayer(this.left, false);
+			// 	this.handlePlayer(this.right, true);
 				
-				Laya.timer.once(500, this, this.handleInput);
-			}
+			// 	Laya.timer.once(500, this, this.handleInput);
+			// }
+		}
+
+		private testPuzzle(currentStatus:PuzzleStatus, completedStatus:PuzzleStatus):void {
+			var searcher:AStar = new AStar();
+			searcher.startStatus = currentStatus.copy();
+			searcher.targetStatus = completedStatus.copy();
+			// searcher.equalComparator = function(){
+
+			// }
+			// searcher setEqualComparator:^BOOL(PuzzleStatus *status1, PuzzleStatus *status2) {
+			// 	return [status1 equalWithStatus:status2];
+			// }];
+			// 开始搜索
+			var time:Date = new Date();
+			var path:PuzzleStatus[] = searcher.search();
+			var pathCount:number = path.length;
+			console.log("耗时：秒" + (time.getMilliseconds() - new Date().getMilliseconds()));
+			console.log("需要移动：数量->" + pathCount);
 		}
 
 		private handlePlayer(sprite:GridSprite, isShadow:boolean) {

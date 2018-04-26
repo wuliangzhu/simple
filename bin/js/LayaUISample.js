@@ -13,6 +13,7 @@ var Label = Laya.Label;
 var Handler = Laya.Handler;
 var Loader = Laya.Loader;
 var GameEngine = game.GameEngine;
+var PuzzleStatus = game.PuzzleStatus;
 var TestUI = /** @class */ (function (_super) {
     __extends(TestUI, _super);
     function TestUI() {
@@ -61,7 +62,7 @@ var TestUI = /** @class */ (function (_super) {
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
-Laya.init(600, 400);
+Laya.init(600, 800);
 //激活资源版本控制
 Laya.ResourceVersion.enable("version.json", Handler.create(null, beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
 function beginLoad() {

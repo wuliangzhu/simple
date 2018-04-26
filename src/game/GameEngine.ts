@@ -45,24 +45,26 @@ module game{
 		 * 初始化显示背景
 		 */
 		private initStage():void {
-			Laya.init(1100, 800, WebGL);
+			Laya.init(1000, 800, WebGL);
 
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-			Laya.stage.scaleMode = Stage.SCALE_SHOWALL;
-			Laya.stage.bgColor = "#2326ff";
+			Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
+			Laya.stage.bgColor = "#0";
 		}
 
 		/**
 		 * 初始化游戏组件
 		 */
 		private initGame():void {
-			this.ui = new UI();
-			this.ui.init();
+			// this.ui = new UI();
+			// this.ui.init();
 
-			this.scene = new Scene();
-			this.scene.init();
+			if (GameConfig.NEED_MAP) {
+				this.scene = new Scene();
+				this.scene.init();
+			}
 
 
 			this.initBackgroundWorker((oEvent:MessageEvent) => {
@@ -72,7 +74,9 @@ module game{
 			});
 
 			// init the frame loop 多久更新一次滚动
-			Laya.timer.frameLoop(2, this, this.frameUpdate);
+			if (GameConfig.NEED_LOOP) {
+				Laya.timer.frameLoop(2, this, this.frameUpdate);
+			}
 		}
 
 		private frameUpdate():void{
@@ -88,8 +92,11 @@ module game{
 		 * 处理完毕会调用callback方法
 		 */
 		private initBackgroundWorker(callback:Function):void {
-			this.worker = new Laya.Browser.window.Worker("worker.js");
+			if (!GameConfig.NEED_WORKER) {
+				return;
+			}
 
+			this.worker = new Laya.Browser.window.Worker("worker.js");
 			this.worker.onmessage = callback;
 		}
 	}

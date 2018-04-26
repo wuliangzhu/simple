@@ -4,6 +4,7 @@ import Handler = Laya.Handler;
 import Loader = Laya.Loader;
 
 import GameEngine = game.GameEngine;
+import PuzzleStatus = game.PuzzleStatus;
 
 class TestUI extends ui.test.TestPageUI {
 
@@ -57,7 +58,7 @@ class TestUI extends ui.test.TestPageUI {
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
-Laya.init(600, 400);
+Laya.init(600, 800);
 //激活资源版本控制
 Laya.ResourceVersion.enable("version.json", Handler.create(null, beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
 
