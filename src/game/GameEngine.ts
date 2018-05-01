@@ -45,12 +45,13 @@ module game{
 		 * 初始化显示背景
 		 */
 		private initStage():void {
-			Laya.init(1000, 800, WebGL);
+			Laya.init(650, 0 , WebGL);
 
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 			Laya.stage.alignH = Stage.ALIGN_CENTER;
 
-			Laya.stage.scaleMode = Stage.SCALE_NOSCALE;
+			Laya.stage.scaleMode = Stage.SCALE_FIXED_WIDTH;
+			Laya.stage.screenMode = Stage.SCREEN_VERTICAL;
 			Laya.stage.bgColor = "#0";
 		}
 
@@ -81,10 +82,30 @@ module game{
 
 		private frameUpdate():void{
 			// update logic
-
+			EventBus.bus.event(Event.GAME_LOOP);
 			// scroll map 应该属于 App范畴
 			// EventBus.bus.event(Event.MOVE_VIEW_POINT, [GameConfig.SCENE_SCROLL_SPEED, 0]);
 		}
+
+		// private updateVersion():void {
+		// 	if (typeof wx.getUpdateManager === 'function') {
+		// 		const updateManager = wx.getUpdateManager()
+
+		// 		updateManager.onCheckForUpdate(function (res) {
+		// 			// 请求完新版本信息的回调
+		// 			console.log(res.hasUpdate)
+		// 		})
+
+		// 		updateManager.onUpdateReady(function () {
+		// 			// 新的版本已经下载好，调用 applyUpdate 应用新版本并重启
+		// 			updateManager.applyUpdate()
+		// 		})
+
+		// 		updateManager.onUpdateFailed(function () {
+		// 			// 新的版本下载失败
+		// 		})
+		// 	}
+		// }
 
 		/**
 		 * 启动一个背景线程进行代码处理

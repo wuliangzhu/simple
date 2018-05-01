@@ -1,5 +1,6 @@
 {
-  "deviceOrientation": "landscape",
+  "deviceOrientation": "portrait",
+  "openDataContext": "src/myOpenDataContext",
   "showStatusBar": "false",
   "networkTimeout": {
     "request": 1000,

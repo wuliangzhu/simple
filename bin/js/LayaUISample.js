@@ -62,7 +62,7 @@ var TestUI = /** @class */ (function (_super) {
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
-Laya.init(600, 800);
+Laya.init(750, 0, Laya.WebGL);
 //激活资源版本控制
 Laya.ResourceVersion.enable("version.json", Handler.create(null, beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
 function beginLoad() {

@@ -8,9 +8,10 @@
 		"newFeature": true
 	},
 	"compileType": "game",
-	"libVersion": "game",
-	"appid": "wx9170ca1ff6f31088",
-	"projectname": "%E5%B0%8F%E6%B8%B8%E6%88%8F%E6%B5%8B%E8%AF%95",
+	"libVersion": "2.0.2",
+	"appid": "touristappid",
+	"projectname": "puzzle",
+	"isGameTourist": true,
 	"condition": {
 		"search": {
 			"current": -1,
@@ -20,8 +21,12 @@
 			"current": -1,
 			"list": []
 		},
+		"plugin": {
+			"current": -1,
+			"list": []
+		},
 		"game": {
-			"currentL": -1,
+			"current": -1,
 			"list": []
 		},
 		"miniprogram": {

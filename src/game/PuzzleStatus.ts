@@ -15,9 +15,7 @@ module game{
 		public hValue:number;
 		public fValue:number;
 
-
 		public children:PuzzleStatus[];
-
 
 		/// 矩阵阶数
 		public matrixOrder:number;
@@ -93,6 +91,12 @@ module game{
 			return ret;
 		}
 
+		public setEmptyVisible(flag:boolean):void {
+			let i = this.emptyIndex;
+			console.log(`set ${i} to ${flag} `);
+			this.pieceArray[i].visible = flag;
+		}
+
 		public shuffleCount(count:number):void {
 			// 记录前置状态，避免来回移动
 			// 前两个状态的空格位置
@@ -101,7 +105,7 @@ module game{
 			let parentIndex:number = -1;
 			while (count > 0) {
 				let targetIndex:number = -1;
-				switch (Math.floor(Math.random()*10) % 4) {
+				switch (Math.floor(Math.random()*100) % 4) {
 					case 0:
 						targetIndex = this.up();
 						break;
