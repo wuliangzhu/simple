@@ -8,6 +8,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+// import {a} from "./wx";
 var test = ui.test.TestPageUI;
 var Label = Laya.Label;
 var Handler = Laya.Handler;
@@ -62,7 +63,7 @@ var TestUI = /** @class */ (function (_super) {
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
-Laya.init(750, 0, Laya.WebGL);
+Laya.init(750, 0);
 //激活资源版本控制
 Laya.ResourceVersion.enable("version.json", Handler.create(null, beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
 function beginLoad() {
@@ -72,6 +73,7 @@ function onLoaded() {
     //实例UI界面
     // var testUI: TestUI = new TestUI();
     // Laya.stage.addChild(testUI);
+    // WXStub.showFriends();
     GameEngine.init();
 }
 //# sourceMappingURL=LayaUISample.js.map

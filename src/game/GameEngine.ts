@@ -29,13 +29,16 @@ module game{
 			let engine:GameEngine = new GameEngine();
 			engine.initStage();
 
-			// init the ui and scene
-			engine.initGame();
+			Laya.timer.frameOnce(1, this, e => {
+					// init the ui and scene
+				engine.initGame();
 
-			GameEngine.instane = engine;
+				GameEngine.instane = engine;
 
-			// game init finished
-			EventBus.bus.event(Event.GAME_INIT);
+				// game init finished
+				EventBus.bus.event(Event.GAME_INIT);
+			});
+			
 		}
 
 		private destroy():void {
@@ -45,7 +48,7 @@ module game{
 		 * 初始化显示背景
 		 */
 		private initStage():void {
-			Laya.init(650, 0 , WebGL);
+			// Laya.init(650, 0 , WebGL);
 
 			Laya.stage.alignV = Stage.ALIGN_MIDDLE;
 			Laya.stage.alignH = Stage.ALIGN_CENTER;

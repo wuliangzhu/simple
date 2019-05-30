@@ -23,7 +23,10 @@ module game{
 		/// 方块数组，按从上到下，从左到右，顺序排列
 		public pieceArray:PuzzlePiece[];
 
+		public freeMove:boolean;
+
 		public constructor(){
+			this.freeMove = false;
 		}
 		public static statusWithMatrixOrder(matrixOrder:number, image:Laya.Texture):PuzzleStatus{
 			if (matrixOrder < 3 || !image) {
@@ -93,11 +96,13 @@ module game{
 
 		public setEmptyVisible(flag:boolean):void {
 			let i = this.emptyIndex;
-			console.log(`set ${i} to ${flag} `);
 			this.pieceArray[i].visible = flag;
 		}
 
 		public shuffleCount(count:number):void {
+			if (this.freeMove) { // 如果是随意移动模式就不再进行随机打乱
+				return;
+			}
 			// 记录前置状态，避免来回移动
 			// 前两个状态的空格位置
 			let ancestorIndex:number = -1;
@@ -203,6 +208,9 @@ module game{
 
 				/// 空格是否能移动到某个位置
 		public canMoveToIndex(index:number):boolean{
+			if (this.freeMove) {
+				return true;
+			}
 			// 能移动的条件是
 			// 1.没有超出边界
 			// 2.空格和目标位置处于同一行或同一列 且相邻

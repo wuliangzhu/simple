@@ -9,6 +9,7 @@ module game{
 		// 显示用的图片
 		public ID:number;
 		private image:Texture;
+		public tileBg:Image;
 
 		constructor(){
 			super();
@@ -26,6 +27,8 @@ module game{
 
 			piece.width = image.width;
 			piece.height = image.height;
+			piece.graphics.loadImage("res/tile.png", 0, 0, piece.width + 2, piece.height + 2);
+			
 			piece.graphics.drawTexture(image);
 
 			return piece;
@@ -33,13 +36,16 @@ module game{
 
 		public showNum():void {
 			this.graphics.clear();
-			this.graphics.drawRect(0, 0, this.width, this.height, "#ff0000");
+			this.graphics.loadImage("res/tile.png", 0, 0, this.width, this.height);
+			
+			// this.graphics.drawRect(0, 0, this.width, this.height, "#ff0000");
 			this.graphics.fillText("" + this.ID, this.width>>1, (this.height>>1) - 30, "60px Arial", "#ffffff",  "center");
 		}
 
 		public clearNum():void {
 			this.graphics.clear();
-			this.graphics.drawTexture(this.image);
+			this.graphics.loadImage("res/tile.png", 0, 0, this.width + 2, this.height + 2);
+			this.graphics.drawTexture(this.image, 1, 1);
 		}
 	}
 }

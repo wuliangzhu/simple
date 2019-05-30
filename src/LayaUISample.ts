@@ -1,3 +1,5 @@
+
+// import {a} from "./wx";
 import test = ui.test.TestPageUI;
 import Label = Laya.Label;
 import Handler = Laya.Handler;
@@ -5,7 +7,6 @@ import Loader = Laya.Loader;
 
 import GameEngine = game.GameEngine;
 import PuzzleStatus = game.PuzzleStatus;
-
 class TestUI extends ui.test.TestPageUI {
 
 	constructor() {
@@ -58,7 +59,7 @@ class TestUI extends ui.test.TestPageUI {
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
-Laya.init(750, 0, Laya.WebGL);
+Laya.init(750, 0);
 //激活资源版本控制
 Laya.ResourceVersion.enable("version.json", Handler.create(null, beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
 
@@ -70,7 +71,7 @@ function onLoaded(): void {
 	//实例UI界面
 	// var testUI: TestUI = new TestUI();
 	// Laya.stage.addChild(testUI);
-	
+	// WXStub.showFriends();
 	GameEngine.init();
-
+	
 }

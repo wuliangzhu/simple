@@ -53193,15 +53193,26 @@ if (typeof define === 'function' && define.amd){
 /**
 * name
 */
-var puzzle;
-(function (puzzle) {
+var game;
+(function (game) {
     var Test = /** @class */ (function () {
         function Test() {
         }
+        Test.prototype.postShowFriends = function () {
+            // console.log("post show friends:" + gs.testWx);
+            // gs.testWx();
+            if (typeof wx != "undefined") {
+                var openDataContext = wx.getOpenDataContext();
+                openDataContext.postMessage({
+                    text: 'hello',
+                    year: (new Date()).getFullYear()
+                });
+            }
+        };
         return Test;
     }());
-    puzzle.Test = Test;
-})(puzzle || (puzzle = {}));
+    game.Test = Test;
+})(game || (game = {}));
 //# sourceMappingURL=Test.js.map
 /**
 * 1 负责地图加载；
@@ -53366,11 +53377,11 @@ var game;
         };
         PuzzleApp.prototype.init = function () {
             var _this = this;
-            console.log("game app init " + Laya.stage.height);
+            console.log("game app init " + game.GameConfig.HEIGHT);
             this.mainPanel = new Sprite();
             this.imgs = ["res/img/img001.png", "res/img/img002.png", "res/img/img003.png"];
             this.imgsStatus = {};
-            this.skins = ["res/add.png", "res/user.png", "res/star.png", "res/play01.png"];
+            this.skins = ["res/add.png", "res/user.png", "res/star.png", "res/play01.png", "res/btn01.png", "res/input.png"];
             this.bgColors = ["#758796", "#495d73", "#87797f", "#5c4d54", "#839187", "#59685d"];
             this.img = new Laya.Sprite();
             // this.img.on(Laya.Event.LOADED, this, this.showImg);
@@ -53379,14 +53390,13 @@ var game;
             this.mode = 0;
             this.gameState = PuzzleApp.IDLE;
             // this.showLadderList();
-            Laya.loader.load(this.skins);
-            Laya.loader.load(this.imgs, Handler.create(this, function (e) {
-            }));
-            // wx api
-            Laya.timer.frameOnce(3, this, function (e) {
+            Laya.loader.load(this.imgs.concat(this.skins), Handler.create(this, function (e) {
                 _this.paintUI();
                 _this.gotoIdleState();
                 _this.uiSkinLoaded();
+            }));
+            // wx api
+            Laya.timer.frameOnce(3, this, function (e) {
             });
         };
         /**
@@ -53394,8 +53404,13 @@ var game;
          */
         PuzzleApp.prototype.paintUI = function () {
             this.paintBg();
+            this.pyp = new Sprite();
+            this.pyp.graphics.loadImage("res/yhy.png", 0, 0, game.GameConfig.WIDTH * 0.8, 100);
+            this.pyp.pivot((game.GameConfig.WIDTH * 0.8) >> 1, 37);
+            this.pyp.pos(game.GameConfig.WIDTH >> 1, 100);
+            Laya.stage.addChild(this.pyp);
             this.mainPanel.pivot(256, 256);
-            this.mainPanel.pos(300, 300);
+            this.mainPanel.pos(game.GameConfig.WIDTH >> 1, 500);
             Laya.stage.addChild(this.mainPanel);
             // load the 存档，如果有就加载:order emptyIndex [ids]
             // this.loadRecord();
@@ -53423,8 +53438,8 @@ var game;
         };
         PuzzleApp.prototype.paintBg = function () {
             this.background = new Sprite();
-            this.background.width = Laya.stage.width;
-            this.background.height = Laya.stage.height;
+            this.background.width = game.GameConfig.WIDTH;
+            this.background.height = game.GameConfig.HEIGHT;
             this.background.pivot(this.background.width >> 1, this.background.height >> 1);
             this.background.pos(this.background.width >> 1, this.background.height >> 1);
             Laya.stage.addChild(this.background);
@@ -53432,16 +53447,16 @@ var game;
             var i = rand << 1;
             var c = this.bgColors[i];
             var c2 = this.bgColors[i + 1];
-            var height = Laya.stage.height * 0.8;
-            console.log("bg pos " + Laya.stage.height + " " + height);
-            this.background.graphics.drawRect(0, 0, Laya.stage.width, height, c);
-            this.background.graphics.drawRect(0, Laya.stage.height * 0.8, Laya.stage.width, Laya.stage.height * 0.2, c2);
+            var height = game.GameConfig.HEIGHT * 0.8;
+            console.log("bg pos " + game.GameConfig.HEIGHT + " " + height);
+            this.background.graphics.drawRect(0, 0, game.GameConfig.WIDTH, height, c);
+            this.background.graphics.drawRect(0, game.GameConfig.HEIGHT * 0.8, game.GameConfig.WIDTH, game.GameConfig.HEIGHT * 0.2, c2);
         };
         PuzzleApp.prototype.addForground = function () {
             // add foreground
             this.foreground = new Sprite();
-            this.foreground.width = Laya.stage.width;
-            this.foreground.height = Laya.stage.height;
+            this.foreground.width = game.GameConfig.WIDTH;
+            this.foreground.height = game.GameConfig.HEIGHT;
             // this.foreground.graphics.drawRect(0, 0, this.foreground.width, this.foreground.height, "#0");
             // this.foreground.alpha = 0.3;
             Laya.stage.addChild(this.foreground);
@@ -53452,15 +53467,20 @@ var game;
          * 3 crazy 采用图片的5个维度
          */
         PuzzleApp.prototype.showLadderList = function () {
-            var config = [{ "text": "easy", "img": "res/play01.png", "order": 3 },
-                { "text": "normal", "img": "res/play01.png", "order": 4 },
-                { "text": "hard", "img": "res/play01.png", "order": 5 }];
+            var config = [{ "text": "3 X 3", "img": "res/btn01.png", "order": 3 },
+                { "text": "4 X 4", "img": "res/btn01.png", "order": 4 },
+                { "text": "5 X 5", "img": "res/btn01.png", "order": 5 }];
             for (var index = 0; index < config.length; index++) {
                 var element = config[index];
-                var button = new Button(null, element["text"]);
-                button.loadImage(element["img"]);
-                button.pivot(185 >> 1, 45 >> 1);
-                button.pos(Laya.stage.width >> 1, (Laya.stage.height >> 1) - 100 + index * 60);
+                var button = new Button(element["img"], element["text"]);
+                button.stateNum = 1;
+                button.size(100, 34);
+                button.sizeGrid = "0,14,0,14,0";
+                //  button.loadImage();
+                button.pivot(50, 20);
+                button.labelBold = true;
+                button.labelSize = 30;
+                button.pos(game.GameConfig.WIDTH >> 1, (game.GameConfig.HEIGHT >> 1) - 100 + index * 60);
                 console.log("add button:" + element["text"]);
                 button.on(Laya.Event.CLICK, this, this.gotoPlay, [element["order"]]);
                 this.foreground.addChild(button);
@@ -53499,6 +53519,9 @@ var game;
                 _this.changeState(PuzzleApp.PLAY);
             });
             timeLine.play(0, false);
+            var t = new game.Test();
+            t.postShowFriends();
+            // 现实下面的按钮
         };
         /**
          * 添加开始按钮
@@ -53508,7 +53531,7 @@ var game;
             var start = new Sprite();
             start.loadImage("res/play01.png");
             start.pivot(185 >> 1, 45 >> 1);
-            start.pos(Laya.stage.width >> 1, 300);
+            start.pos(game.GameConfig.WIDTH >> 1, 300);
             start.on(Laya.Event.MOUSE_DOWN, this, function (e) {
                 start.loadImage("res/play02.png");
             });
@@ -53529,15 +53552,53 @@ var game;
          */
         PuzzleApp.prototype.addProgressStatus = function () {
             // add progressStatus
-            this.processStatus = new Label("进度");
-            this.processStatus.fontSize = 30;
-            this.processStatus.align = "center";
-            this.processStatus.width = Laya.stage.width;
-            this.processStatus.height = 40;
-            this.processStatus.pivot(Laya.stage.width >> 1, 20);
-            this.processStatus.pos(Laya.stage.width >> 1, 20);
+            this.processStatus = new Sprite();
+            // this.processStatus.graphics.drawRect(0,0, GameConfig.WIDTH, 200, "#ff0000");
+            // this.processStatus.fontSize = 30;
+            // this.processStatus.align = "center";
+            this.processStatus.width = game.GameConfig.WIDTH;
+            this.processStatus.height = 200;
+            this.processStatus.pivot(game.GameConfig.WIDTH >> 1, 100);
+            this.processStatus.pos(game.GameConfig.WIDTH >> 1, 100);
             this.background.addChild(this.processStatus);
             this.processStatus.visible = false;
+            var stepLabel = new Label("步数：");
+            stepLabel.pos(40, 50);
+            this.applyFontStyle(stepLabel);
+            var timeLabel = new Label("时间：");
+            timeLabel.pos(40, 100);
+            this.applyFontStyle(timeLabel);
+            var remainStep = new Label("估计剩余步数：");
+            remainStep.pos(game.GameConfig.WIDTH >> 1, 50);
+            this.applyFontStyle(remainStep);
+            var step = this.step = new Laya.TextInput("0");
+            step.pos(145, 50);
+            step.editable = false;
+            this.applyFontStyle(step, true);
+            var time = this.time = new Laya.TextInput("0");
+            time.pos(145, 100);
+            this.applyFontStyle(time, true);
+            var remain = this.remain = new Laya.TextInput("0");
+            remain.pos((game.GameConfig.WIDTH >> 1) + 200, 50);
+            this.applyFontStyle(remain, true);
+            this.processStatus.addChild(stepLabel);
+            this.processStatus.addChild(timeLabel);
+            this.processStatus.addChild(remainStep);
+            this.processStatus.addChild(step);
+            this.processStatus.addChild(time);
+            this.processStatus.addChild(remain);
+        };
+        PuzzleApp.prototype.applyFontStyle = function (label, isInput) {
+            if (isInput === void 0) { isInput = false; }
+            if (isInput) {
+                var t = label;
+                t.skin = "res/input.png";
+                t.sizeGrid = "0, 14, 0, 14, 0";
+            }
+            label.fontSize = 30;
+            label.align = "center";
+            label.height = 30;
+            label.width = 150;
         };
         PuzzleApp.prototype.loadRecord = function () {
             // let record = Db.loadJson("puzzle");
@@ -53556,11 +53617,25 @@ var game;
         };
         PuzzleApp.prototype.changeState = function (state) {
             this.gameState = state;
-            if (state != PuzzleApp.PLAY) {
-                this.processStatus.visible = false;
-            }
-            else {
-                this.processStatus.visible = true;
+            switch (state) {
+                case PuzzleApp.PLAY:
+                    {
+                        this.pyp.visible = false;
+                        this.processStatus.visible = true;
+                    }
+                    break;
+                case PuzzleApp.IDLE:
+                    {
+                        this.pyp.visible = true;
+                        this.processStatus.visible = false;
+                    }
+                    break;
+                case PuzzleApp.SUCCESS:
+                    {
+                        this.pyp.visible = false;
+                        this.processStatus.visible = false;
+                    }
+                    break;
             }
             console.log("change to game state:" + state);
         };
@@ -53607,7 +53682,7 @@ var game;
             // var button:Button = new Button(this.skins[3]);
             // // button.width = 32;
             // // button.height = 32;
-            // button.pos(Laya.stage.width - 100, Laya.stage.height - 40);
+            // button.pos(GameConfig.WIDTH - 100, GameConfig.HEIGHT - 40);
             // button.label = "换图";
             // button.on(Laya.Event.CLICK, this, e => {
             // 	this.imgId = this.imgId + 1;
@@ -53618,7 +53693,7 @@ var game;
             // var button2:Button = new Button(this.skins[3]);
             // // button.width = 32;
             // // button.height = 32;
-            // button2.pos(Laya.stage.width - 180, Laya.stage.height - 40);
+            // button2.pos(GameConfig.WIDTH - 180, GameConfig.HEIGHT - 40);
             // button2.label = "开始拼图";
             // button2.on(Laya.Event.CLICK, this, e => {
             // 	// this.changeImg(this.imgs[this.imgId]);
@@ -53628,7 +53703,7 @@ var game;
             // var button3:Button = new Button(this.skins[3]);
             // // button.width = 32;
             // // button.height = 32;
-            // button3.pos(Laya.stage.width - 260, Laya.stage.height - 40);
+            // button3.pos(GameConfig.WIDTH - 260, GameConfig.HEIGHT - 40);
             // button3.label = "打乱";
             // button3.on(Laya.Event.CLICK, this, e => {
             // 	this.currentStatus.shuffleCount(20);
@@ -53639,7 +53714,7 @@ var game;
             var button4 = new Button(this.skins[3]);
             // button.width = 32;
             // button.height = 32;
-            button4.pos((Laya.stage.width >> 1) + 120, 600);
+            button4.pos((game.GameConfig.WIDTH >> 1) + 120, 600);
             button4.label = "认输";
             button4.on(Laya.Event.CLICK, this, function (e) {
                 _this.usedTime = 0;
@@ -53651,8 +53726,8 @@ var game;
             var button5 = new Button(this.skins[3]);
             // button.width = 32;
             // button.height = 32;
-            console.log("button5 pos " + Laya.stage.height);
-            button5.pos((Laya.stage.width >> 1) - 120, 600);
+            console.log("button5 pos " + game.GameConfig.HEIGHT);
+            button5.pos((game.GameConfig.WIDTH >> 1) - 120, 600);
             button5.label = "显示数字";
             button5.on(Laya.Event.CLICK, this, function (e) {
                 _this.mode = 1 - _this.mode;
@@ -53725,6 +53800,7 @@ var game;
                 this.currentStatus.moveToIndex(i);
                 this.renderStatus(this.currentStatus);
                 this.stepNum++;
+                this.step.text = "" + this.stepNum;
                 // this.saveRecord();
             }
         };
@@ -53788,7 +53864,7 @@ var game;
                 Laya.Tween.to(p, { "x": x, "y": y }, 250, Laya.Ease.linearNone);
             }
             var progress = status.estimateToTargetStatus(this.completedStatus);
-            this.processStatus.text = "距离完成还差:" + progress + "米";
+            this.remain.text = "" + progress;
         };
         /**
          * 寻找路径
@@ -53847,6 +53923,17 @@ var game;
                     this.changeState(PuzzleApp.SUCCESS);
                     this.showSuccess(true);
                 }
+                else {
+                    this.usedTime = (new Date().getTime() - this.startTime) / 1000;
+                    this.usedTime = Math.floor(this.usedTime);
+                    var seconds = this.usedTime % 3600;
+                    var hours = (this.usedTime - seconds) / 3600;
+                    var s = seconds % 60;
+                    var min = (seconds - s) / 60;
+                    this.time.text = (hours > 9 ? hours : "0" + hours) + ":" +
+                        (min > 9 ? min : "0" + min) + ":" +
+                        (s > 9 ? s : "0" + s);
+                }
             }
         };
         /**
@@ -53869,33 +53956,33 @@ var game;
             }
             var score = new Label();
             score.fontSize = 30;
-            score.width = Laya.stage.width;
+            score.width = game.GameConfig.WIDTH;
             score.align = "center";
-            score.pivot(Laya.stage.width >> 1, 15);
+            score.pivot(game.GameConfig.WIDTH >> 1, 15);
             if (isAuto) {
                 score.text = prefix + " \u5F97\u5206 " + scoreNum + " \u79FB\u52A8" + this.stepNum + "\u6B65, \u7528\u65F6 " + this.usedTime + "\u79D2";
             }
             else {
                 score.text = "\u672C\u6B21\u662FAI\u5B8C\u6210\u7528\u4E86 " + this.stepNum + "\u6B65";
             }
-            score.pos(Laya.stage.width >> 1, 100);
+            score.pos(game.GameConfig.WIDTH >> 1, 100);
             this.foreground.addChild(score);
             var best = new Label();
             best.fontSize = 30;
-            best.width = Laya.stage.width;
+            best.width = game.GameConfig.WIDTH;
             best.align = "center";
-            best.pivot(Laya.stage.width >> 1, 15);
+            best.pivot(game.GameConfig.WIDTH >> 1, 15);
             best.text = "\u6700\u597D\u8BB0\u5F55\u662F \u5F97\u5206" + scoreNum + "  \u79FB\u52A8" + this.stepNum + "\u6B65 \u7528\u65F6 " + this.usedTime + "\u79D2";
-            best.pos(Laya.stage.width >> 1, 140);
+            best.pos(game.GameConfig.WIDTH >> 1, 140);
             this.foreground.addChild(best);
             var idle = new Sprite();
             idle.loadImage("res/play01.png");
-            idle.pos(80, Laya.stage.height - 80);
+            idle.pos(80, game.GameConfig.HEIGHT - 80);
             idle.on(Laya.Event.CLICK, this, this.gotoIdleState);
             this.foreground.addChild(idle);
             var tryAgain = new Sprite();
             tryAgain.loadImage("res/play02.png");
-            tryAgain.pos(Laya.stage.width - 180, Laya.stage.height - 80);
+            tryAgain.pos(game.GameConfig.WIDTH - 180, game.GameConfig.HEIGHT - 80);
             tryAgain.on(Laya.Event.CLICK, this, function (e) {
                 _this.gotoPlay(_this.currentStatus.matrixOrder);
             });
@@ -54184,7 +54271,6 @@ var game;
 */
 var game;
 (function (game) {
-    var WebGL = Laya.WebGL;
     var Stage = Laya.Stage;
     var GameEngine = /** @class */ (function () {
         function GameEngine() {
@@ -54206,7 +54292,7 @@ var game;
          * 初始化显示背景
          */
         GameEngine.prototype.initStage = function () {
-            Laya.init(650, 0, WebGL);
+            // Laya.init(650, 0 , WebGL);
             Laya.stage.alignV = Stage.ALIGN_MIDDLE;
             Laya.stage.alignH = Stage.ALIGN_CENTER;
             Laya.stage.scaleMode = Stage.SCALE_FIXED_WIDTH;
@@ -54285,6 +54371,8 @@ var game;
         GameConfig.NEED_MAP = true;
         GameConfig.NEED_LOOP = true;
         GameConfig.NEED_WORKER = true;
+        GameConfig.WIDTH = 750;
+        GameConfig.HEIGHT = 1000;
         GameConfig.appClass = function () {
             game.PuzzleApp.startApp();
         };
@@ -54675,17 +54763,20 @@ var game;
             piece.image = image;
             piece.width = image.width;
             piece.height = image.height;
+            piece.graphics.loadImage("res/tile.png", 0, 0, piece.width + 2, piece.height + 2);
             piece.graphics.drawTexture(image);
             return piece;
         };
         PuzzlePiece.prototype.showNum = function () {
             this.graphics.clear();
-            this.graphics.drawRect(0, 0, this.width, this.height, "#ff0000");
+            this.graphics.loadImage("res/tile.png", 0, 0, this.width, this.height);
+            // this.graphics.drawRect(0, 0, this.width, this.height, "#ff0000");
             this.graphics.fillText("" + this.ID, this.width >> 1, (this.height >> 1) - 30, "60px Arial", "#ffffff", "center");
         };
         PuzzlePiece.prototype.clearNum = function () {
             this.graphics.clear();
-            this.graphics.drawTexture(this.image);
+            this.graphics.loadImage("res/tile.png", 0, 0, this.width + 2, this.height + 2);
+            this.graphics.drawTexture(this.image, 1, 1);
         };
         return PuzzlePiece;
     }(Laya.Sprite));
@@ -55037,6 +55128,7 @@ var __extends = (this && this.__extends) || (function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 })();
+// import {a} from "./wx";
 var test = ui.test.TestPageUI;
 var Label = Laya.Label;
 var Handler = Laya.Handler;
@@ -55091,7 +55183,7 @@ var TestUI = /** @class */ (function (_super) {
 //初始化微信小游戏
 Laya.MiniAdpter.init();
 //程序入口
-Laya.init(750, 0, Laya.WebGL);
+Laya.init(750, 1000);
 //激活资源版本控制
 Laya.ResourceVersion.enable("version.json", Handler.create(null, beginLoad), Laya.ResourceVersion.FILENAME_VERSION);
 function beginLoad() {
@@ -55101,6 +55193,7 @@ function onLoaded() {
     //实例UI界面
     // var testUI: TestUI = new TestUI();
     // Laya.stage.addChild(testUI);
+    // WXStub.showFriends();
     GameEngine.init();
 }
 //# sourceMappingURL=LayaUISample.js.map
